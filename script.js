@@ -1,51 +1,30 @@
-var select = document.getElementById('country');
+/*==================== FUNCTION FOR ONCLICK EVENT ========= */
 
-var promise = new Promise(function(resolve, reject) {
-    var details;
-    var request = new XMLHttpRequest();
-    var url = "https://restcountries.eu/rest/v2/all"
-    request.open('GET', url, true);
-    request.send();
-    request.onload = function() {
-        details = JSON.parse(this.response);
-        if (this.readyState === 4 && this.status === 200) {
-            resolve(details);
-        } else {
-            reject("Something Wrong with API");
-        }
+function getValue() {
 
-    }
-})
+    /*========== GET USER INPUTS AND STORED TO VARIABLE ============== */
 
+    let name = document.getElementById('name').value;
+    let chapter = document.getElementById('chapter').value;
+    let verse = document.getElementById('verse').value;
 
-promise.then(function(data) {
-        for (let i = 0; i < data.length; i++) {
-            var opt = document.createElement('option');
-            opt.text = data[i].name;
-            opt.value = data[i].name;
-            select.add(opt);
-        }
-        select.onchange = function() {
-            getDetails(data);
-        }
-    })
-    .catch(function(err) {
-        console.log(err);
-    });
+    /*========= USING FETCH FOR SEARCH VALUES ============ */
 
+    fetch(`https://bible-api.com/${name}${chapter}:${verse}`)
+        .then((data) => data.json())
+        .then((res) => {
+            console.log(res);
+            console.log(res.reference);
+            console.log(res.verses[0].text);
 
+            /*================== APPEND THE RESULT TO HTML =================== */
 
-function getDetails(data) {
-    var selectedOption = select.options[select.selectedIndex].text;
-    for (let i = 0; i < data.length; i++) {
-        if (selectedOption === data[i].name) {
-            document.getElementById('flag').src = data[i].flag;
-            document.getElementById('capital').innerHTML = data[i].capital;
-            document.getElementById('region').innerHTML = data[i].region;
-            document.getElementById('latlng').innerHTML = `Latitude : ${data[i].latlng[0].toFixed(2)} Longitude : ${data[i].latlng[1].toFixed(2)}`;
-            document.getElementById('code').innerHTML = `Code : ${data[i].currencies[0].code}`;
-            document.getElementById('name').innerHTML = `Name : ${data[i].currencies[0].name}`;
-            document.getElementById('symbol').innerHTML = `Symbol : ${data[i].currencies[0].symbol}`;
-        }
-    }
+            document.getElementById('bookname').innerHTML = `Book Name <br><span id="o-color" class="fs-1 text-capitalize">${res.verses[0].book_name}<span>`;
+            document.getElementById('bookofchapter').innerHTML = `Chapter <br><span id="o-color" class="fs-1 text-capitalize"> ${res.verses[0].chapter}<span>`;
+            document.getElementById('numofverse').innerHTML = `Verse <br><span id="o-color" class="fs-1 text-capitalize">${res.verses[0].verse}<span>`;
+            document.getElementById('text').innerHTML = `Content <br><span id="o-color" class="fs-3 text-capitalize">${res.verses[0].text}<span>`;
+            document.getElementById('reference').innerHTML = `Reference<br><span id="o-color" class="fs-1 text-capitalize">${res.reference}<span>`;
+            document.getElementById('translationname').innerHTML = `Translation Name<br><span id="o-color" class="fs-3 text-capitalize">${res.translation_name}<span>`;
+;
+});
 }
